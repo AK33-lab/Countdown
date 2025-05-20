@@ -28,6 +28,8 @@
             width: 80%;
             max-width: 800px;
             border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
         }
         
         h1 {
@@ -94,22 +96,67 @@
         
         .hearts {
             margin-top: 30px;
+            height: 50px;
+            position: relative;
+        }
+        
+        .heart {
+            position: absolute;
             font-size: 24px;
-        }
-        
-        .hearts span {
             display: inline-block;
-            animation: float 2s infinite ease-in-out;
-            margin: 0 10px;
-            opacity: 0.7;
+            transition: transform 0.3s ease-out;
+            cursor: pointer;
+            left: 50%;
+            transform: translateX(-50%);
         }
         
-        .hearts span:nth-child(2) {
-            animation-delay: 0.5s;
+        .heart-button {
+            margin-top: 30px;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        .hearts span:nth-child(3) {
-            animation-delay: 1s;
+        .heart-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .heart-button.blue {
+            background: linear-gradient(45deg, #3b82f6, #60a5fa);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .heart-button.blue:hover {
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        .falling-heart {
+            position: absolute;
+            font-size: 20px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear;
+            z-index: 100;
+        }
+        
+        @keyframes fall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(calc(100vh)) rotate(360deg);
+                opacity: 0;
+            }
         }
         
         @keyframes float {
@@ -142,7 +189,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="container">
         <h1>Days until we see each other</h1>
         <div class="countdown">
             <div class="time-box">
@@ -163,11 +210,10 @@
             </div>
         </div>
         <div id="message" class="message">Finally together! ❤️</div>
-        <div class="hearts">
-            <span>❤️</span>
-            <span>❤️</span>
-            <span>❤️</span>
+        <div id="hearts" class="hearts">
+            <!-- Hearts will be created by JavaScript -->
         </div>
+        <button id="heart-button" class="heart-button">Make It Rain ❤️</button>
     </div>
 
     <script>
@@ -204,6 +250,137 @@
                 document.getElementById("message").classList.add("show-message");
             }
         }, 1000);
+
+        // Create hearts
+        const heartsContainer = document.getElementById("hearts");
+        const container = document.getElementById("container");
+        const numHearts = 5;
+        const hearts = [];
+        let isRedHeart = true;
+        const heartButton = document.getElementById("heart-button");
+
+        // Function to create the hearts
+        function createHearts(heartType) {
+            // Clear existing hearts
+            heartsContainer.innerHTML = '';
+            hearts.length = 0;
+            
+            // Create new hearts
+            for (let i = 0; i < numHearts; i++) {
+                const heart = document.createElement("div");
+                heart.className = "heart";
+                heart.innerHTML = heartType;
+                heart.style.left = `${(i + 1) * (100 / (numHearts + 1))}%`;
+                heartsContainer.appendChild(heart);
+                hearts.push(heart);
+            }
+            
+            // Add click event listeners to hearts
+            hearts.forEach(heart => {
+                heart.addEventListener("click", function() {
+                    this.style.fontSize = "32px";
+                    setTimeout(() => {
+                        this.style.fontSize = "24px";
+                    }, 300);
+                });
+            });
+        }
+
+        // Initialize hearts
+        createHearts("❤️");
+
+        // Make hearts follow mouse cursor with different delays
+        container.addEventListener("mousemove", (e) => {
+            const rect = container.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const containerWidth = rect.width;
+            const containerHeight = rect.height;
+
+            hearts.forEach((heart, index) => {
+                setTimeout(() => {
+                    // Calculate distances from center
+                    const heartRect = heart.getBoundingClientRect();
+                    const heartCenterX = (heartRect.left + heartRect.right) / 2 - rect.left;
+                    const heartCenterY = (heartRect.top + heartRect.bottom) / 2 - rect.top;
+                    
+                    // Calculate direction vector
+                    const dirX = mouseX - heartCenterX;
+                    const dirY = mouseY - heartCenterY;
+                    
+                    // Normalize and scale the movement (stronger when closer)
+                    const distance = Math.sqrt(dirX * dirX + dirY * dirY);
+                    const maxDistance = Math.sqrt(containerWidth * containerWidth + containerHeight * containerHeight) / 2;
+                    const influence = Math.max(0, 1 - distance / maxDistance) * 30;
+                    
+                    // Apply the movement
+                    const moveX = (dirX / distance) * influence * (index % 2 === 0 ? 1 : -0.8);
+                    const moveY = (dirY / distance) * influence * (index % 3 === 0 ? 0.9 : 1.2);
+                    
+                    heart.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                }, index * 50); // Staggered delay for more natural movement
+            });
+        });
+
+        // Reset hearts position when mouse leaves
+        container.addEventListener("mouseleave", () => {
+            hearts.forEach((heart, index) => {
+                setTimeout(() => {
+                    heart.style.transform = "translate(0, 0)";
+                }, index * 100);
+            });
+        });
+
+        // Function to create a falling heart
+        function createFallingHeart(heartType) {
+            const heart = document.createElement("div");
+            heart.className = "falling-heart";
+            heart.textContent = heartType;
+            
+            // Random position on the x-axis
+            const randomX = Math.random() * window.innerWidth;
+            heart.style.left = `${randomX}px`;
+            
+            // Random size
+            const size = Math.random() * 10 + 15;
+            heart.style.fontSize = `${size}px`;
+            
+            // Random duration for the fall animation
+            const duration = Math.random() * 3 + 2;
+            heart.style.animationDuration = `${duration}s`;
+            
+            document.body.appendChild(heart);
+            
+            // Remove the heart after animation ends
+            setTimeout(() => {
+                heart.remove();
+            }, duration * 1000);
+        }
+
+        // Heart button click handler
+        heartButton.addEventListener("click", () => {
+            // Toggle between red and blue hearts
+            isRedHeart = !isRedHeart;
+            const heartType = isRedHeart ? "❤️" : "💙";
+            
+            // Update the button text and style
+            heartButton.innerHTML = `Make It Rain ${heartType}`;
+            if (isRedHeart) {
+                heartButton.classList.remove("blue");
+            } else {
+                heartButton.classList.add("blue");
+            }
+            
+            // Update the hearts in the container
+            createHearts(heartType);
+            
+            // Create falling hearts animation
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    createFallingHeart(heartType);
+                }, i * 100);
+            }
+        });
     </script>
 </body>
 </html>
