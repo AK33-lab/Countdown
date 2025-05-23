@@ -16,6 +16,43 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
+            position: relative;
+        }
+        
+        .background-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+        
+        .background-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+        
+        .background-slide.active {
+            opacity: 1;
+        }
+        
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 154, 158, 0.7) 0%, rgba(250, 208, 196, 0.7) 100%);
+            z-index: -1;
         }
         
         .container {
@@ -189,6 +226,12 @@
     </style>
 </head>
 <body>
+    <!-- Background slideshow -->
+    <div class="background-slideshow" id="backgroundSlideshow">
+        <!-- Photo slides will be added by JavaScript -->
+    </div>
+    <div class="background-overlay"></div>
+
     <div class="container" id="container">
         <h1>Days until we see each other</h1>
         <div class="countdown">
@@ -217,6 +260,43 @@
     </div>
 
     <script>
+        // Background slideshow with gradient backgrounds
+        const gradientBackgrounds = [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+        ];
+        
+        let currentSlideIndex = 0;
+        const backgroundSlideshow = document.getElementById('backgroundSlideshow');
+        
+        // Create slides with beautiful gradients
+        function initializeSlideshow() {
+            gradientBackgrounds.forEach((gradient, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'background-slide';
+                slide.style.background = gradient;
+                if (index === 0) slide.classList.add('active');
+                backgroundSlideshow.appendChild(slide);
+            });
+        }
+        
+        // Change slides
+        function nextSlide() {
+            const slides = document.querySelectorAll('.background-slide');
+            slides[currentSlideIndex].classList.remove('active');
+            currentSlideIndex = (currentSlideIndex + 1) % gradientBackgrounds.length;
+            slides[currentSlideIndex].classList.add('active');
+        }
+        
+        // Initialize slideshow
+        initializeSlideshow();
+        
+        // Change slide every 5 seconds
+        setInterval(nextSlide, 5000);
+        
         // Set the target date (August 25, 2025)
         const targetDate = new Date("August 25, 2025 00:00:00").getTime();
         
@@ -359,11 +439,10 @@
 
         // Heart button click handler
         heartButton.addEventListener("click", () => {
-            // Toggle between red and blue hearts
+            // Toggle
             isRedHeart = !isRedHeart;
             const heartType = isRedHeart ? "❤️" : "💙";
-            
-            // Update the button text and style
+        
             heartButton.innerHTML = `Make It Rain ${heartType}`;
             if (isRedHeart) {
                 heartButton.classList.remove("blue");
@@ -371,10 +450,9 @@
                 heartButton.classList.add("blue");
             }
             
-            // Update the hearts in the container
             createHearts(heartType);
             
-            // Create falling hearts animation
+            // Falling hearts animation
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     createFallingHeart(heartType);
