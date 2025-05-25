@@ -226,9 +226,9 @@
     </style>
 </head>
 <body>
-    <!-- Background slideshow -->
+    //Background slideshow
     <div class="background-slideshow" id="backgroundSlideshow">
-        <!-- Photo slides will be added by JavaScript -->
+    
     </div>
     <div class="background-overlay"></div>
 
@@ -254,44 +254,54 @@
         </div>
         <div id="message" class="message">Finally together! ❤️</div>
         <div id="hearts" class="hearts">
-            <!-- Hearts will be created by JavaScript -->
+    
         </div>
         <button id="heart-button" class="heart-button">Make It Rain ❤️</button>
     </div>
 
     <script>
-        // Background slideshow with gradient backgrounds
-        const gradientBackgrounds = [
-            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
-        ];
+        // Background slideshow with image backgrounds
+        const photoBackgrounds = [
+    'images/backgrounds/photo1.jpg',
+    'images/backgrounds/photo2.jpg',
+    'images/backgrounds/photo3.jpg',
+    'images/backgrounds/photo4.jpg',
+    'images/backgrounds/photo5.jpg'
+];
         
         let currentSlideIndex = 0;
-        const backgroundSlideshow = document.getElementById('backgroundSlideshow');
+const backgroundSlideshow = document.getElementById('backgroundSlideshow');
         
-        // Create slides with beautiful gradients
-        function initializeSlideshow() {
-            gradientBackgrounds.forEach((gradient, index) => {
-                const slide = document.createElement('div');
-                slide.className = 'background-slide';
-                slide.style.background = gradient;
-                if (index === 0) slide.classList.add('active');
-                backgroundSlideshow.appendChild(slide);
-            });
-        }
+        // Create slides with photos
+function initializeSlideshow() {
+    photoBackgrounds.forEach((photoPath, index) => {
+        const slide = document.createElement('div');
+        slide.className = 'background-slide';
+        slide.style.backgroundImage = `url('${photoPath}')`;
+        slide.style.backgroundSize = 'cover';
+        slide.style.backgroundPosition = 'center';
+        if (index === 0) slide.classList.add('active');
+        backgroundSlideshow.appendChild(slide);
+    });
+}
         
         // Change slides
         function nextSlide() {
             const slides = document.querySelectorAll('.background-slide');
             slides[currentSlideIndex].classList.remove('active');
-            currentSlideIndex = (currentSlideIndex + 1) % gradientBackgrounds.length;
+            currentSlideIndex = (currentSlideIndex + 1) % photoBackgrounds.length;
             slides[currentSlideIndex].classList.add('active');
         }
-        
+
+        // Preload images for smoother transitions
+function preloadImages() {
+    photoBackgrounds.forEach(photoPath => {
+        const img = new Image();
+        img.src = photoPath;
+    });
+}
         // Initialize slideshow
+        preloadImages();
         initializeSlideshow();
         
         // Change slide every 5 seconds
