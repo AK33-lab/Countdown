@@ -62,7 +62,7 @@
             margin-bottom: 40px;
             font-size: 36px;
             text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            color: #4a4a4a;
+            color: #ffffff;
             font-family: 'Pacifico', cursive, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
@@ -96,7 +96,7 @@
             font-size: 56px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #4a4a4a;
+            color: #ffffff;
         }
         
         .label {
@@ -331,8 +331,6 @@
             </div>
         </div>
         <div id="message" class="message">Finally together! ❤️</div>
-        <div id="hearts" class="hearts">
-        </div>
         <button id="heart-button" class="heart-button">Make It Rain ❤️</button>
     </div>
 
@@ -504,85 +502,7 @@
             }
         }, 1000);
 
-        // Create hearts
-        const heartsContainer = document.getElementById("hearts");
-        const container = document.getElementById("container");
-        const numHearts = 5;
-        const hearts = [];
-        let isRedHeart = true;
         const heartButton = document.getElementById("heart-button");
-
-        // Function to create the hearts
-        function createHearts(heartType) {
-            // Clear existing hearts
-            heartsContainer.innerHTML = '';
-            hearts.length = 0;
-            
-            // Create new hearts
-            for (let i = 0; i < numHearts; i++) {
-                const heart = document.createElement("div");
-                heart.className = "heart";
-                heart.innerHTML = heartType;
-                heart.style.left = `${(i + 1) * (100 / (numHearts + 1))}%`;
-                heartsContainer.appendChild(heart);
-                hearts.push(heart);
-            }
-            
-            // Add click event listeners to hearts
-            hearts.forEach(heart => {
-                heart.addEventListener("click", function() {
-                    this.style.fontSize = "32px";
-                    setTimeout(() => {
-                        this.style.fontSize = "24px";
-                    }, 300);
-                });
-            });
-        }
-
-        // Initialize hearts
-        createHearts("❤️");
-
-        // Make hearts follow mouse cursor with different delays
-        container.addEventListener("mousemove", (e) => {
-            const rect = container.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            const containerWidth = rect.width;
-            const containerHeight = rect.height;
-
-            hearts.forEach((heart, index) => {
-                setTimeout(() => {
-                    // Calculate distances from center
-                    const heartRect = heart.getBoundingClientRect();
-                    const heartCenterX = (heartRect.left + heartRect.right) / 2 - rect.left;
-                    const heartCenterY = (heartRect.top + heartRect.bottom) / 2 - rect.top;
-                    
-                    // Calculate direction vector
-                    const dirX = mouseX - heartCenterX;
-                    const dirY = mouseY - heartCenterY;
-                    
-                    // Normalize and scale the movement (stronger when closer)
-                    const distance = Math.sqrt(dirX * dirX + dirY * dirY);
-                    const maxDistance = Math.sqrt(containerWidth * containerWidth + containerHeight * containerHeight) / 2;
-                    const influence = Math.max(0, 1 - distance / maxDistance) * 30;
-                    
-                    // Apply the movement
-                    const moveX = (dirX / distance) * influence * (index % 2 === 0 ? 1 : -0.8);
-                    const moveY = (dirY / distance) * influence * (index % 3 === 0 ? 0.9 : 1.2);
-                    
-                    heart.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                }, index * 50); // Staggered delay for more natural movement
-            });
-        });
-
-        // Reset hearts position when mouse leaves
-        container.addEventListener("mouseleave", () => {
-            hearts.forEach((heart, index) => {
-                setTimeout(() => {
-                    heart.style.transform = "translate(0, 0)";
-                }, index * 100);
-            });
-        });
 
         // Function to create a falling heart
         function createFallingHeart(heartType) {
