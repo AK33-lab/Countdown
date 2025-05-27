@@ -332,7 +332,6 @@
         </div>
         <div id="message" class="message">Finally together! ❤️</div>
         <div id="hearts" class="hearts">
-            <!-- Hearts will be created by JavaScript -->
         </div>
         <button id="heart-button" class="heart-button">Make It Rain ❤️</button>
     </div>
@@ -388,8 +387,6 @@
         
         // Milestone messages
         const milestoneMessages = {
-        
-            89: "🌟 89 Days Left! We're getting so close! I can almost feel your hugs! 🤗",
             80: "✨ 80 Days! Less than 3 months to go! Time is flying when I think of you! 💕",
             70: "🎊 70 Days! We're in the final stretch! Every day brings us closer! 🏃‍♀️💨",
             60: "🎆 60 Days! Two months left! I'm counting every heartbeat until then! 💓",
@@ -491,7 +488,7 @@
             document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, '0');
             
             // Check for milestone celebrations
-            if (days > 0 && (days % 10 === 0 || days === 89) && lastMilestone !== days && milestoneMessages[days]) {
+            if (days > 0 && days % 10 === 0 && lastMilestone !== days && milestoneMessages[days]) {
                 lastMilestone = days;
                 celebrateMilestone(days);
             }
