@@ -167,10 +167,12 @@
         
         .confetti {
             position: absolute;
-            width: 8px;
-            height: 8px;
+            width: 16px;
+            height: 16px;
             pointer-events: none;
-            animation: confetti-fall 3s linear forwards;
+            animation: confetti-fall 4s linear forwards;
+            border-radius: 3px;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
         }
         
         @keyframes milestone-popup {
@@ -201,11 +203,15 @@
         
         @keyframes confetti-fall {
             0% {
-                transform: translateY(-100vh) rotate(0deg);
+                transform: translateY(-100vh) rotate(0deg) scale(0.8);
+                opacity: 1;
+            }
+            10% {
+                transform: translateY(-80vh) rotate(72deg) scale(1.2);
                 opacity: 1;
             }
             100% {
-                transform: translateY(100vh) rotate(720deg);
+                transform: translateY(100vh) rotate(1080deg) scale(0.6);
                 opacity: 0;
             }
         }
@@ -358,22 +364,31 @@
         }
         
         function createConfetti() {
-            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7', '#a55eea'];
-            const confettiCount = 50;
+            const colors = ['#ff1744', '#ff9100', '#ffeb3b', '#4caf50', '#2196f3', '#9c27b0', '#e91e63', '#ff5722', '#00bcd4', '#8bc34a'];
+            const confettiCount = 80;
             
             for (let i = 0; i < confettiCount; i++) {
                 setTimeout(() => {
                     const confetti = document.createElement('div');
                     confetti.className = 'confetti';
-                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.background = `linear-gradient(45deg, ${color}, ${color}CC)`;
                     confetti.style.left = Math.random() * window.innerWidth + 'px';
-                    confetti.style.top = '-10px';
-                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    confetti.style.top = '-20px';
+                    confetti.style.animationDelay = Math.random() * 1.5 + 's';
+                    confetti.style.animationDuration = (3 + Math.random() * 2) + 's';
+                    
+                    // Add some variety to shapes
+                    if (Math.random() > 0.7) {
+                        confetti.style.borderRadius = '50%';
+                    } else if (Math.random() > 0.5) {
+                        confetti.style.transform = 'rotate(45deg)';
+                    }
                     
                     document.body.appendChild(confetti);
                     
-                    setTimeout(() => confetti.remove(), 3000);
-                }, i * 50);
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 30);
             }
         }
         
@@ -397,7 +412,7 @@
         }
         
         // Set the target date
-        const targetDate = new Date("July 7, 2025 00:00:00").getTime();
+        const targetDate = new Date("July 17, 2025 00:00:00").getTime();
         
         // Update the countdown every second
         const countdown = setInterval(function() {
