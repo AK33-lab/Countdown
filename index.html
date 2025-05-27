@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            background: #000;
             color: white;
             display: flex;
             justify-content: center;
@@ -45,26 +45,16 @@
             opacity: 1;
         }
         
-        .background-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255, 154, 158, 0.7) 0%, rgba(250, 208, 196, 0.7) 100%);
-            background: rgba(0, 0, 0, 0.2);
-            z-index: -1;
-        }
-        
         .container {
             text-align: center;
-            background-color: transparent;
+            background-color: rgba(255, 255, 255, 0.25);
             padding: 40px;
             border-radius: 15px;
-            box-shadow: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
             width: 80%;
             max-width: 800px;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -73,7 +63,7 @@
             margin-bottom: 40px;
             font-size: 36px;
             text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            color: #ffffff;
+            color: #4a4a4a;
             font-family: 'Pacifico', cursive, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
@@ -107,7 +97,7 @@
             font-size: 56px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #ffffff;
+            color: #4a4a4a;
         }
         
         .label {
@@ -185,6 +175,59 @@
             z-index: 100;
         }
         
+        /* Milestone celebration styles */
+        .milestone-celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .milestone-celebration.active {
+            opacity: 1;
+        }
+        
+        .milestone-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 30px 50px;
+            border-radius: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            font-family: 'Pacifico', cursive;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: milestone-popup 3s ease-out;
+            max-width: 80%;
+            line-height: 1.4;
+        }
+        
+        .explosion-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: explode 2s ease-out forwards;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            pointer-events: none;
+            animation: confetti-fall 3s linear forwards;
+        }
+        
         @keyframes fall {
             0% {
                 transform: translateY(-50px) rotate(0deg);
@@ -196,12 +239,40 @@
             }
         }
         
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0);
+        @keyframes milestone-popup {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
             }
-            50% {
-                transform: translateY(-15px);
+            20% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) translate(var(--dx), var(--dy));
+                opacity: 0;
+            }
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
             }
         }
         
@@ -222,14 +293,23 @@
             .label {
                 font-size: 14px;
             }
+            
+            .milestone-message {
+                font-size: 24px;
+                padding: 20px 30px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Background slideshow -->
     <div class="background-slideshow" id="backgroundSlideshow">
-    
     </div>
-    <div class="background-overlay"></div>
+
+    <!-- Milestone celebration overlay -->
+    <div class="milestone-celebration" id="milestoneOverlay">
+        <div class="milestone-message" id="milestoneMessage"></div>
+    </div>
 
     <div class="container" id="container">
         <h1>Days until we see each other</h1>
@@ -253,36 +333,44 @@
         </div>
         <div id="message" class="message">Finally together! ❤️</div>
         <div id="hearts" class="hearts">
-    
+            <!-- Hearts will be created by JavaScript -->
         </div>
         <button id="heart-button" class="heart-button">Make It Rain ❤️</button>
     </div>
 
     <script>
-        // Background slideshow with image backgrounds
+        // Background slideshow with photos
         const photoBackgrounds = [
-    'images/backgrounds/photo1.jpg',
-    'images/backgrounds/photo2.jpg',
-    'images/backgrounds/photo3.jpg',
-    'images/backgrounds/photo4.jpg',
-    'images/backgrounds/photo5.jpg'
-];
+            'images/backgrounds/photo1.jpg',
+            'images/backgrounds/photo2.jpg',
+            'images/backgrounds/photo3.jpg',
+            'images/backgrounds/photo4.jpg',
+            'images/backgrounds/photo5.jpg'
+        ];
         
         let currentSlideIndex = 0;
-const backgroundSlideshow = document.getElementById('backgroundSlideshow');
+        const backgroundSlideshow = document.getElementById('backgroundSlideshow');
+        
+        // Preload images for smoother transitions
+        function preloadImages() {
+            photoBackgrounds.forEach(photoPath => {
+                const img = new Image();
+                img.src = photoPath;
+            });
+        }
         
         // Create slides with photos
-function initializeSlideshow() {
-    photoBackgrounds.forEach((photoPath, index) => {
-        const slide = document.createElement('div');
-        slide.className = 'background-slide';
-        slide.style.backgroundImage = `url('${photoPath}')`;
-        slide.style.backgroundSize = 'cover';
-        slide.style.backgroundPosition = 'center';
-        if (index === 0) slide.classList.add('active');
-        backgroundSlideshow.appendChild(slide);
-    });
-}
+        function initializeSlideshow() {
+            photoBackgrounds.forEach((photoPath, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'background-slide';
+                slide.style.backgroundImage = `url('${photoPath}')`;
+                slide.style.backgroundSize = 'cover';
+                slide.style.backgroundPosition = 'center';
+                if (index === 0) slide.classList.add('active');
+                backgroundSlideshow.appendChild(slide);
+            });
+        }
         
         // Change slides
         function nextSlide() {
@@ -291,20 +379,94 @@ function initializeSlideshow() {
             currentSlideIndex = (currentSlideIndex + 1) % photoBackgrounds.length;
             slides[currentSlideIndex].classList.add('active');
         }
-
-        // Preload images for smoother transitions
-function preloadImages() {
-    photoBackgrounds.forEach(photoPath => {
-        const img = new Image();
-        img.src = photoPath;
-    });
-}
+        
         // Initialize slideshow
         preloadImages();
         initializeSlideshow();
         
-        // Change slide every 4 seconds
-        setInterval(nextSlide, 4000);
+        // Change slide every 5 seconds
+        setInterval(nextSlide, 5000);
+        
+        // Milestone messages
+        const milestoneMessages = {
+        
+            89: "🌟 89 Days Left! We're getting so close! I can almost feel your hugs! 🤗",
+            80: "✨ 80 Days! Less than 3 months to go! Time is flying when I think of you! 💕",
+            70: "🎊 70 Days! We're in the final stretch! Every day brings us closer! 🏃‍♀️💨",
+            60: "🎆 60 Days! Two months left! I'm counting every heartbeat until then! 💓",
+            50: "🎁 50 Days! Halfway to forever! This anticipation is killing me! 😍",
+            40: "🌈 40 Days! I can practically taste the joy! We're almost there! 🥳",
+            30: "🔥 30 Days! One month left! I'm bursting with excitement! 🤩",
+            20: "⚡ 20 Days! Less than three weeks! I can't contain my happiness! 😆",
+            10: "🚀 10 Days! Single digits! We made it! The countdown is almost over! 🎯"
+        };
+        
+        let lastMilestone = null;
+        
+        // Milestone celebration functions
+        function createExplosion(centerX, centerY) {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7'];
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'explosion-particle';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.left = centerX + 'px';
+                particle.style.top = centerY + 'px';
+                
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const velocity = 100 + Math.random() * 100;
+                const dx = Math.cos(angle) * velocity;
+                const dy = Math.sin(angle) * velocity;
+                
+                particle.style.setProperty('--dx', dx + 'px');
+                particle.style.setProperty('--dy', dy + 'px');
+                
+                document.body.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 2000);
+            }
+        }
+        
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7', '#a55eea'];
+            const confettiCount = 50;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-10px';
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+        }
+        
+        function celebrateMilestone(days) {
+            const milestoneOverlay = document.getElementById('milestoneOverlay');
+            const milestoneMessage = document.getElementById('milestoneMessage');
+            
+            milestoneMessage.textContent = milestoneMessages[days];
+            milestoneOverlay.classList.add('active');
+            
+            // Create explosion at center of screen
+            createExplosion(window.innerWidth / 2, window.innerHeight / 2);
+            
+            // Create confetti
+            createConfetti();
+            
+            // Hide milestone message after 4 seconds
+            setTimeout(() => {
+                milestoneOverlay.classList.remove('active');
+            }, 4000);
+        }
         
         // Set the target date (August 25, 2025)
         const targetDate = new Date("August 25, 2025 00:00:00").getTime();
@@ -328,6 +490,12 @@ function preloadImages() {
             document.getElementById("hours").innerHTML = hours.toString().padStart(2, '0');
             document.getElementById("minutes").innerHTML = minutes.toString().padStart(2, '0');
             document.getElementById("seconds").innerHTML = seconds.toString().padStart(2, '0');
+            
+            // Check for milestone celebrations
+            if (days > 0 && (days % 10 === 0 || days === 89) && lastMilestone !== days && milestoneMessages[days]) {
+                lastMilestone = days;
+                celebrateMilestone(days);
+            }
             
             // If the countdown is over, show a message
             if (timeRemaining < 0) {
@@ -448,10 +616,11 @@ function preloadImages() {
 
         // Heart button click handler
         heartButton.addEventListener("click", () => {
-            // Toggle
+            // Toggle between red and blue hearts
             isRedHeart = !isRedHeart;
             const heartType = isRedHeart ? "❤️" : "💙";
-        
+            
+            // Update the button text and style
             heartButton.innerHTML = `Make It Rain ${heartType}`;
             if (isRedHeart) {
                 heartButton.classList.remove("blue");
@@ -459,9 +628,10 @@ function preloadImages() {
                 heartButton.classList.add("blue");
             }
             
+            // Update the hearts in the container
             createHearts(heartType);
             
-            // Falling hearts animation
+            // Create falling hearts animation
             for (let i = 0; i < 50; i++) {
                 setTimeout(() => {
                     createFallingHeart(heartType);
